@@ -3,19 +3,85 @@
   <head>
     <meta charset="utf-8">
     <title>PA6: D3 Visual Animation</title>
-    <script src="d3.v3.min.js" charset="utf-8"></script>
+    <script src="d3.min.js" charset="utf-8"></script>
     <style type="text/css">
+      #control-buttons{
+        width: 800px;
+        height: 40px;
+        text-align: center;
+      }
     </style>
   </head>
   <body>
     <svg width="800" height="400" boarder="1">
-      <rect x="0" y="0" width="800" height="400" stroke="black" stroke-width="1" fill="none">
-        <div id="stage">
-        </div>
-      </rect>
+      <rect id="stage" x="0" y="0" width="800" height="400" stroke="black" stroke-width="1" fill-opacity="0.0"/>
+        <circle id="led-1" cx="50" cy="50" r="40" stroke="black" stroke-width="1" fill="white"/>
+        <circle id="led-2" cx="150" cy="50" r="40" stroke="black" stroke-width="1" fill="white"/>
+        <circle id="led-3" cx="250" cy="50" r="40" stroke="black" stroke-width="1" fill="white"/>
+        <circle id="led-4" cx="250" cy="50" r="40" stroke="black" stroke-width="1" fill="white"/>
+        <circle id="led-5" cx="350" cy="50" r="40" stroke="black" stroke-width="1" fill="white"/>
+        <circle id="led-6" cx="450" cy="50" r="40" stroke="black" stroke-width="1" fill="white"/>
+        <circle id="led-7" cx="550" cy="50" r="40" stroke="black" stroke-width="1" fill="white"/>
+        <circle id="led-8" cx="650" cy="50" r="40" stroke="black" stroke-width="1" fill="white"/>
+        <circle id="led-9" cx="750" cy="50" r="40" stroke="black" stroke-width="1" fill="white"/>
+
+        <circle id="led-10" cx="50" cy="150" r="40" stroke="black" stroke-width="1" fill="white"/>
+        <circle id="led-11" cx="150" cy="150" r="40" stroke="black" stroke-width="1" fill="white"/>
+        <circle id="led-12" cx="250" cy="150" r="40" stroke="black" stroke-width="1" fill="white"/>
+        <circle id="led-13" cx="250" cy="150" r="40" stroke="black" stroke-width="1" fill="white"/>
+        <circle id="led-14" cx="350" cy="150" r="40" stroke="black" stroke-width="1" fill="white"/>
+        <circle id="led-15" cx="450" cy="150" r="40" stroke="black" stroke-width="1" fill="white"/>
+        <circle id="led-16" cx="550" cy="150" r="40" stroke="black" stroke-width="1" fill="white"/>
+        <circle id="led-17" cx="650" cy="150" r="40" stroke="black" stroke-width="1" fill="white"/>
+        <circle id="led-18" cx="750" cy="150" r="40" stroke="black" stroke-width="1" fill="white"/>
+
+        <circle id="led-19" cx="50" cy="250" r="40" stroke="black" stroke-width="1" fill="white"/>
+        <circle id="led-20" cx="150" cy="250" r="40" stroke="black" stroke-width="1" fill="white"/>
+        <circle id="led-21" cx="250" cy="250" r="40" stroke="black" stroke-width="1" fill="white"/>
+        <circle id="led-22" cx="250" cy="250" r="40" stroke="black" stroke-width="1" fill="white"/>
+        <circle id="led-23" cx="350" cy="250" r="40" stroke="black" stroke-width="1" fill="white"/>
+        <circle id="led-24" cx="450" cy="250" r="40" stroke="black" stroke-width="1" fill="white"/>
+        <circle id="led-25" cx="550" cy="250" r="40" stroke="black" stroke-width="1" fill="white"/>
+        <circle id="led-26" cx="650" cy="250" r="40" stroke="black" stroke-width="1" fill="white"/>
+        <circle id="led-27" cx="750" cy="250" r="40" stroke="black" stroke-width="1" fill="white"/>
+
+        <circle id="led-28" cx="50" cy="350" r="40" stroke="black" stroke-width="1" fill="white"/>
+        <circle id="led-29" cx="150" cy="350" r="40" stroke="black" stroke-width="1" fill="white"/>
+        <circle id="led-30" cx="250" cy="350" r="40" stroke="black" stroke-width="1" fill="white"/>
+        <circle id="led-31" cx="250" cy="350" r="40" stroke="black" stroke-width="1" fill="white"/>
+        <circle id="led-32" cx="350" cy="350" r="40" stroke="black" stroke-width="1" fill="white"/>
+        <circle id="led-33" cx="450" cy="350" r="40" stroke="black" stroke-width="1" fill="white"/>
+        <circle id="led-34" cx="550" cy="350" r="40" stroke="black" stroke-width="1" fill="white"/>
+        <circle id="led-35" cx="650" cy="350" r="40" stroke="black" stroke-width="1" fill="white"/>
+        <circle id="led-36" cx="750" cy="350" r="40" stroke="black" stroke-width="1" fill="white"/>
     </svg>
+    </br>
+    <div id="control-buttons">
+      <button id="start-reset" type="button" onclick="startButton()">Start</button>
+      <button id="chime" type="button" onclick="chime()">Chime</button>
+    </div>
   </body>
   <script>
-    var stage = d3.select("stage");
+    function startButton(){
+      button = document.getElementById("start-reset");
+      switch(button.innerHTML){
+          case "Start":
+          button.innerHTML = "Reset";
+          break;
+        case "Reset":
+          button.innerHTML = "Start";
+          break;
+      }
+      animationMain();
+    }
+
+    function chime(){
+      //A responsive event triger to send to the animation sequence
+      //An idea: every odd chime the colors of all the LED's become a shade brighter; every even chime the speed of the animation quickens
+    }
+
+    function animationMain(){
+      //Main deterministic animation driver
+    }
   </script>
 </html>
