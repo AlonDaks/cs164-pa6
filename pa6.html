@@ -47,20 +47,77 @@
       zigHigh(this.selection.filter(function(d, i) { return !(i % 2); }), this.params);
     }
 
+    // SquaresAnimation is an animation ____ 
+    var SquaresAnimation = Animation.make({color: "blue", delay: 800, duration: 400});
+    SquaresAnimation.prototype.play = function() {
+      // This sequence is a off-to-on transition
+      var INITIAL_SELECT = this.selection;
+      function fillOne(selection, params) {
+          selection.attr("fill", "white")
+          .transition()
+          .delay(params.delay)
+          .attr("fill", params.color)
+          .duration(params.duration)
+          .delay(params.delay)
+          .each("end", function() {fillFour(INITIAL_SELECT.filter(function(d, i){ return i == 10 || i == 11 || i == 14 || i == 15}), params)});
+      }
+
+      // This sequence is an on-to-off transition
+      function fillFour(selection, params) {
+        selection.attr("fill", "white")
+          .transition()
+          .delay(params.delay)
+          .attr("fill", params.color)
+          .duration(params.duration)
+          .delay(params.delay)
+          .each("end", function() {fillNine(INITIAL_SELECT.filter(function(d, i){ return  i == 5 || i == 6 || i == 7 || i == 9 || i == 10 || i == 11 || i == 13 || i == 14 || i == 15}), params)});
+      }
+
+      function fillNine(selection, params) {
+        selection.attr("fill", "white")
+          .transition()
+          .delay(params.delay)
+          .attr("fill", params.color)
+          .duration(params.duration)
+          .delay(params.delay)
+          .each("end", function() {fillSixteen(INITIAL_SELECT, params)});
+      }
+
+      function fillSixteen(selection, params) {
+        selection.attr("fill", "white")
+          .transition()
+          .delay(params.delay)
+          .attr("fill", params.color)
+          .duration(params.duration)
+          .delay(params.delay)
+          .each("end", function() {fillOne(INITIAL_SELECT.filter(function(d, i) { return i == 15; }), params)});
+      }
+
+      // Make half of the lights start on, half start off
+      fillOne(this.selection.filter(function(d, i) { return i == 15; }), this.params);
+    }
+
     /* Driver code below */
     var leds;
     var marqueeAnim;
+    var squaresAnimLeft;
 
     // Setup method called after body loads.
     function setup() {
       leds = d3.selectAll(".led");
-      marqueeAnim = new MarqueeAnimation(leds);
+      // marqueeAnim = new MarqueeAnimation(leds);
+      leftLEDs = leds.filter(function(d, i){ return (i >= 0 && i <= 3) || (i >= 8 && i <= 11) || (i >= 16 && i <= 19) || (i >= 24 && i <= 27)})
+      console.log(leds)
+      console.log(leftLEDs);
+      squaresAnimLeft = new SquaresAnimation(leftLEDs);
       chimeCount = 0;
     }
 
     function reset() {
-      marqueeAnim.stop();
-      marqueeAnim.resetParams();
+      // marqueeAnim.stop();
+      // marqueeAnim.resetParams();
+      squaresAnimLeft.stop();
+      squaresAnimLeft.resetParams();
       chimeCount = 0;
     }
 
@@ -70,7 +127,8 @@
       switch(button.innerHTML){
           case "Start":
           button.innerHTML = "Reset";
-          marqueeAnim.play();
+          squaresAnimLeft.play();
+          // marqueeAnim.play();
           break;
         case "Reset":
           button.innerHTML = "Start";
