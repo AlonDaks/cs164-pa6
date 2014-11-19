@@ -77,32 +77,43 @@
     }
 
     function animationMain(){
-      marqueeSequence("Blue", 10);
+      marqueeSequence("Blue", 11);
       //Main deterministic animation driver
     }
 
     function marqueeSequence(color, timeSteps){
       var LEDs = d3.selectAll(".led");
-      for(var i = 0; i<timeSteps; i++){
-        LEDs.each(function(d, j){
-          var currentCircle = d3.select(this);
-          console.log(this);
-          if(i % 2 == 0){
-            if(j % 2 == 0){
-              currentCircle.attr("fill", color);
-            } else{
-              currentCircle.attr("fill", "white");
-            }
-          } else {
-            if(j % 2 == 1){
-              currentCircle.attr("fill", "white");
-            } else {
-              currentCircle.attr("fill", color);
-            }
-          }
-        }); 
-        
+      var i = 0;                    
+      function marqueeLoop() {         
+         setTimeout(function () {    
+            LEDs.each(function(d, j){
+                var currentCircle = d3.select(this);
+                console.log(this);
+                if(i % 2 == 0){
+                  if(j % 2 == 0){
+                    currentCircle.attr("fill", color);
+                  } else{
+                    currentCircle.attr("fill", "white");
+                  }
+                } else {
+                  if(j % 2 == 0){
+                    currentCircle.attr("fill", "white");
+                  } else {
+                    currentCircle.attr("fill", color);
+                  }
+                }
+            });           
+            i++;                     
+            if (i < timeSteps) {           
+               marqueeLoop();             
+            }                      
+         }, 500)
       }
+      marqueeLoop(); 
     }
+
+
+
+
   </script>
 </html>
