@@ -22,24 +22,38 @@
     MarqueeAnimation.prototype.play = function() {
       // This sequence is a off-to-on transition
       function zigLow(selection, params) {
-        selection.attr("fill", "white")
+        var n = 0;
+        selection.each(function() { n++; })
+          .attr("fill", "white")
           .transition()
           .delay(params.delay)
           .attr("fill", params.color)
           .duration(params.duration)
           .delay(params.delay)
-          .each("end", function() {zigHigh(selection, params)});
+          .each("end", function() {
+            n--;
+            if (!n) {
+              zigHigh(selection, params);
+            }
+          });
       }
 
       // This sequence is an on-to-off transition
       function zigHigh(selection, params) {
-        selection.attr("fill", params.color)
+        var n = 0;
+        selection.each(function() { n++; })
+          .attr("fill", params.color)
           .transition()
           .delay(params.delay)
           .attr("fill", "white")
           .duration(params.duration)
           .delay(params.delay)
-          .each("end", function() {zigLow(selection, params)});
+          .each("end", function() { 
+            n--;
+            if (!n) {
+              zigLow(selection, params);
+            }
+           });
       }
 
       // Make half of the lights start on, half start off
@@ -48,54 +62,32 @@
     }
 
     // SquaresAnimation is an animation ____ 
-    var SquaresAnimation = Animation.make({color: "blue", delay: 800, duration: 400});
-    SquaresAnimation.prototype.play = function() {
-      // This sequence is a off-to-on transition
-      var INITIAL_SELECT = this.selection;
-      function fillOne(selection, params) {
-          INITIAL_SELECT.attr("fill", "white");
-          selection
-          .transition()
-          .delay(params.delay)
-          .attr("fill", params.color)
-          .duration(params.duration)
-          .delay(params.delay)
-          .each("end", function() {fillFour(INITIAL_SELECT.filter(function(d, i){ return i == 10 || i == 11 || i == 14 || i == 15}), params)});
+    var SquaresAnimation = Animation.make({color: "blue", delay: 600, duration: 400});
+    SquaresAnimation.prototype.play = function(maxSize) {
+      function filter(selection, count) {
+        return selection.filter(function(d, i) { return d <= count });
       }
 
-      // This sequence is an on-to-off transition
-      function fillFour(selection, params) {
-        selection
+      function pulse(selection, params, count) {
+        var n = 0;
+        filter(selection, count).each(function() { n++; })
+          .attr("fill", "white")
           .transition()
           .delay(params.delay)
-          .attr("fill", params.color)
           .duration(params.duration)
+          .attrTween("fill", function() { return d3.interpolate("white", params.color)})
           .delay(params.delay)
-          .each("end", function() {fillNine(INITIAL_SELECT.filter(function(d, i){ return  i == 5 || i == 6 || i == 7 || i == 9 || i == 10 || i == 11 || i == 13 || i == 14 || i == 15}), params)});
-      }
-
-      function fillNine(selection, params) {
-        selection
           .transition()
-          .delay(params.delay)
-          .attr("fill", params.color)
-          .duration(params.duration)
-          .delay(params.delay)
-          .each("end", function() {fillSixteen(INITIAL_SELECT, params)});
+          .attrTween("fill", function() { return d3.interpolate(params.color, "white")})
+          .each("end", function() { 
+            n--;
+            if (!n) {
+              pulse(selection, params, (count + 1) % maxSize);
+            }
+          });
       }
 
-      function fillSixteen(selection, params) {
-        selection
-          .transition()
-          .delay(params.delay)
-          .attr("fill", params.color)
-          .duration(params.duration)
-          .delay(params.delay)
-          .each("end", function() {fillOne(INITIAL_SELECT.filter(function(d, i) { return i == 15; }), params)});
-      }
-
-      // Make half of the lights start on, half start off
-      fillOne(this.selection.filter(function(d, i) { return i == 15; }), this.params);
+      pulse(this.selection, this.params, 0);
     }
 
     /* Driver code below */
@@ -107,42 +99,77 @@
     // Setup method called after body loads.
     function setup() {
       leds = d3.selectAll(".led");
-      // marqueeAnim = new MarqueeAnimation(leds);
+      marqueeAnim = new MarqueeAnimation(leds);
       leftLEDs = leds.filter(function(d, i){ return (i >= 0 && i <= 3) || (i >= 8 && i <= 11) || (i >= 16 && i <= 19) || (i >= 24 && i <= 27)})
+      leftLEDs.data( [3, 3, 3, 3, 
+                      3, 2, 2, 2,
+                      3, 2, 1, 1,
+                      3, 2, 1, 0]);
       rightLEDs = leds.filter(function(d, i){ return (i >= 4 && i <= 7) || (i >= 12 && i <= 15) || (i >= 20 && i <= 23) || (i >= 28 && i <= 31)})
+      rightLEDs.data( [3, 3, 3, 3, 
+                      2, 2, 2, 3,
+                      1, 1, 2, 3,
+                      0, 1, 2, 3]);
       squaresAnimLeft = new SquaresAnimation(leftLEDs);
       squaresAnimRight = new SquaresAnimation(rightLEDs);
       chimeCount = 0;
     }
 
+    // Resets all animations.
     function reset() {
-      // marqueeAnim.stop();
-      // marqueeAnim.resetParams();
-      squaresAnimLeft.stop();
+      stopMarquee();
+      stopSquares();
+      marqueeAnim.resetParams();
       squaresAnimLeft.resetParams();
+      squaresAnimRight.resetParams();
       chimeCount = 0;
     }
 
-    // This button starts or stops the animation.
-    function startClicked(){
-      button = document.getElementById("start-reset");
+    // Starts or stops the marquee animation. 
+    function marqueeClicked(){
+      button = document.getElementById("start-marquee");
       switch(button.innerHTML){
-          case "Start":
-          button.innerHTML = "Reset";
-          squaresAnimLeft.play();
-          squaresAnimRight.play();
-          // marqueeAnim.play();
+          case "Start Marquee":
+          stopSquares();
+          button.innerHTML = "Stop Marquee";
+          marqueeAnim.play();
           break;
-        case "Reset":
-          button.innerHTML = "Start";
-          reset();
+        case "Stop Marquee":
+          stopMarquee();
           break;
       }
     }
 
+    // Starts or stops the squares animation.
+    function squaresClicked() {
+      button = document.getElementById("start-squares");
+      switch(button.innerHTML){
+        case "Start Squares":
+          stopMarquee();
+          button.innerHTML = "Stop Squares";
+          squaresAnimLeft.play(4);
+          squaresAnimRight.play(4);
+          break;
+        case "Stop Squares":
+          stopSquares();
+          break;
+      }
+    }
+
+    function stopMarquee() {
+      document.getElementById("start-marquee").innerHTML = "Start Marquee";
+      marqueeAnim.stop();
+    }
+
+    function stopSquares() {
+      document.getElementById("start-squares").innerHTML = "Start Squares";
+      squaresAnimLeft.stop();
+      squaresAnimRight.stop();
+    }
+
     // Reacting to user events. In our example, the animation either changes speeds or color
     // depending on the number of times "Chime" has been clicked. 
-    function chimeCliked(){
+    function chimeCliked() {
       switch (chimeCount) {
         case 0: marqueeAnim.params.delay = 200; break;
         case 1: marqueeAnim.params.color = "green"; break;
@@ -151,78 +178,6 @@
       }
       chimeCount = (chimeCount + 1) % 4;
     }
-
-    /*function MarqueeAnimation(selection) {
-      this.selection = selection;
-      this.params = {color: "blue", delay: 800, duration: 400};
-    }
-
-    MarqueeAnimation.prototype.play = function() {
-      function zigLow(selection, params) {
-        selection.attr("fill", "white")
-          .transition()
-          .delay(params.delay)
-          .attr("fill", params.color)
-          .duration(params.duration)
-          .delay(params.delay)
-          .each("end", function() {zigHigh(selection, params)});
-      }
-
-      function zigHigh(selection, params) {
-        selection.attr("fill", params.color)
-          .transition()
-          .delay(params.delay)
-          .attr("fill", "white")
-          .duration(params.duration)
-          .delay(params.delay)
-          .each("end", function() {zigLow(selection, params)});
-      }
-
-      zigLow(this.selection.filter(function(d, i) { return i % 2; }), this.params);
-      zigHigh(this.selection.filter(function(d, i) { return !(i % 2); }), this.params);
-    }
-
-    MarqueeAnimation.prototype.getParams = function(){
-      return this.params;
-    }
-
-    MarqueeAnimation.prototype.setParams = function(params) {
-      this.params = params;
-    }
-
-    MarqueeAnimation.prototype.stop = function() {*/
-      
-
-    /*function marqueeSequence(color, timeSteps){
-      var LEDs = d3.selectAll(".led");
-      var i = 0;                    
-      function marqueeLoop() {         
-         setTimeout(function () {    
-            LEDs.each(function(d, j){
-                var currentCircle = d3.select(this);
-                console.log(this);
-                if(i % 2 == 0){
-                  if(j % 2 == 0){
-                    currentCircle.attr("fill", color);
-                  } else{
-                    currentCircle.attr("fill", "white");
-                  }
-                } else {
-                  if(j % 2 == 0){
-                    currentCircle.attr("fill", "white");
-                  } else {
-                    currentCircle.attr("fill", color);
-                  }
-                }
-            });           
-            i++;                     
-            if (i < timeSteps) {           
-               marqueeLoop();             
-            }                      
-         }, 500)
-      }
-      marqueeLoop(); 
-    }*/
   </script>
   </head>
   <body onload="setup()">
@@ -266,8 +221,10 @@
     </svg>
     </br>
     <div id="control-buttons">
-      <button id="start-reset" type="button" onclick="startClicked()">Start</button>
+      <button id="start-marquee" type="button" onclick="marqueeClicked()">Start Marquee</button>
+      <button id="start-squares" type="button" onclick="squaresClicked()">Start Squares</button>
       <button id="chime" type="button" onclick="chimeCliked()">Chime</button>
+      <button id="reset" type="button" onclick="reset()">Reset</button>
     </div>
   </body>
 </html>
