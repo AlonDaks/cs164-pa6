@@ -11,64 +11,20 @@
         text-align: center;
       }
     </style>
-  </head>
-  <body>
-    <svg width="800" height="400" boarder="1">
-      <rect id="stage" x="0" y="0" width="800" height="400" stroke="black" stroke-width="1" fill-opacity="0.0"/>
-        <circle class="led" led-num="1" cx="50" cy="50" r="40" stroke="black" stroke-width="1" fill="white"/>
-        <circle class="led" led-num="2" cx="150" cy="50" r="40" stroke="black" stroke-width="1" fill="white"/>
-        <circle class="led" led-num="3" cx="250" cy="50" r="40" stroke="black" stroke-width="1" fill="white"/>
-        <circle class="led" led-num="4" cx="350" cy="50" r="40" stroke="black" stroke-width="1" fill="white"/>
-        <circle class="led" led-num="5" cx="450" cy="50" r="40" stroke="black" stroke-width="1" fill="white"/>
-        <circle class="led" led-num="6" cx="550" cy="50" r="40" stroke="black" stroke-width="1" fill="white"/>
-        <circle class="led" led-num="7" cx="650" cy="50" r="40" stroke="black" stroke-width="1" fill="white"/>
-        <circle class="led" led-num="8" cx="750" cy="50" r="40" stroke="black" stroke-width="1" fill="white"/>
 
-        <circle class="led" led-num="9" cx="50" cy="150" r="40" stroke="black" stroke-width="1" fill="white"/>
-        <circle class="led" led-num="10"  cx="150" cy="150" r="40" stroke="black" stroke-width="1" fill="white"/>
-        <circle class="led" led-num="11"  cx="250" cy="150" r="40" stroke="black" stroke-width="1" fill="white"/>
-        <circle class="led" led-num="12"  cx="350" cy="150" r="40" stroke="black" stroke-width="1" fill="white"/>
-        <circle class="led" led-num="13"  cx="450" cy="150" r="40" stroke="black" stroke-width="1" fill="white"/>
-        <circle class="led" led-num="14"  cx="550" cy="150" r="40" stroke="black" stroke-width="1" fill="white"/>
-        <circle class="led" led-num="15"  cx="650" cy="150" r="40" stroke="black" stroke-width="1" fill="white"/>
-        <circle class="led" led-num="16"  cx="750" cy="150" r="40" stroke="black" stroke-width="1" fill="white"/>
-
-        <circle class="led" led-num="17"  cx="50" cy="250" r="40" stroke="black" stroke-width="1" fill="white"/>
-        <circle class="led" led-num="18"  cx="150" cy="250" r="40" stroke="black" stroke-width="1" fill="white"/>
-        <circle class="led" led-num="19"  cx="250" cy="250" r="40" stroke="black" stroke-width="1" fill="white"/>
-        <circle class="led" led-num="20"  cx="350" cy="250" r="40" stroke="black" stroke-width="1" fill="white"/>
-        <circle class="led" led-num="21"  cx="450" cy="250" r="40" stroke="black" stroke-width="1" fill="white"/>
-        <circle class="led" led-num="22"  cx="550" cy="250" r="40" stroke="black" stroke-width="1" fill="white"/>
-        <circle class="led" led-num="23"  cx="650" cy="250" r="40" stroke="black" stroke-width="1" fill="white"/>
-        <circle class="led" led-num="24"  cx="750" cy="250" r="40" stroke="black" stroke-width="1" fill="white"/>
-
-        <circle class="led" led-num="25"  cx="50" cy="350" r="40" stroke="black" stroke-width="1" fill="white"/>
-        <circle class="led" led-num="26"  cx="150" cy="350" r="40" stroke="black" stroke-width="1" fill="white"/>
-        <circle class="led" led-num="27"  cx="250" cy="350" r="40" stroke="black" stroke-width="1" fill="white"/>
-        <circle class="led" led-num="28"  cx="350" cy="350" r="40" stroke="black" stroke-width="1" fill="white"/>
-        <circle class="led" led-num="29"  cx="450" cy="350" r="40" stroke="black" stroke-width="1" fill="white"/>
-        <circle class="led" led-num="30"  cx="550" cy="350" r="40" stroke="black" stroke-width="1" fill="white"/>
-        <circle class="led" led-num="31"  cx="650" cy="350" r="40" stroke="black" stroke-width="1" fill="white"/>
-        <circle class="led" led-num="32"  cx="750" cy="350" r="40" stroke="black" stroke-width="1" fill="white"/>
-    </svg>
-    </br>
-    <div id="control-buttons">
-      <button id="start-reset" type="button" onclick="startButton()">Start</button>
-      <button id="chime" type="button" onclick="chime()">Chime</button>
-    </div>
-  </body>
-  <script>
+    <script>
     function startButton(){
       button = document.getElementById("start-reset");
       switch(button.innerHTML){
           case "Start":
           button.innerHTML = "Reset";
+          animationMain();
           break;
         case "Reset":
           button.innerHTML = "Start";
+          stopAnimation();
           break;
       }
-      animationMain();
     }
 
     function chime(){
@@ -77,12 +33,38 @@
     }
 
     function animationMain(){
-      marqueeSequence("Blue", 10);
+      //marqueeSequence("Blue", 10);
       //Main deterministic animation driver
+      zigLow(d3.selectAll("#led1"), "blue");
+      zigHigh(d3.selectAll("#led2"), "blue")
+    }
+
+    function stopAnimation() {
+      d3.selectAll(".led").transition().duration(0).attr("fill", "white");
+    }
+
+    /* Input: d3.selection */
+    function zigLow(selection, color, state) {
+      selection.attr("fill", "white")
+        .transition()
+        .delay(500)
+        .attr("fill", color)
+        .duration(1000)
+        .each("end",  function() {zigHigh(selection, color, state)});
+    }
+
+    function zigHigh(selection, color, state) {
+      selection.attr("fill", color)
+        .transition()
+        .delay(500)
+        .attr("fill", "white")
+        .duration(1000)
+        .each("end", function() {zigLow(selection, color, state)});
     }
 
     function marqueeSequence(color, timeSteps){
       var LEDs = d3.selectAll(".led");
+
       for(var i = 0; i<timeSteps; i++){
         LEDs.each(function(d, j){
           var currentCircle = d3.select(this);
@@ -105,4 +87,50 @@
       }
     }
   </script>
+  </head>
+  <body>
+    <svg width="800" height="400" boarder="1">
+      <rect id="stage" x="0" y="0" width="800" height="400" stroke="black" stroke-width="1" fill-opacity="0.0"/>
+        <circle class="led" id="led1" cx="50" cy="50" r="40" stroke="black" stroke-width="1" fill="white"/>
+        <circle class="led" id="led2" cx="150" cy="50" r="40" stroke="black" stroke-width="1" fill="white"/>
+        <circle class="led" id="led3" cx="250" cy="50" r="40" stroke="black" stroke-width="1" fill="white"/>
+        <circle class="led" id="led4" cx="350" cy="50" r="40" stroke="black" stroke-width="1" fill="white"/>
+        <circle class="led" id="led5" cx="450" cy="50" r="40" stroke="black" stroke-width="1" fill="white"/>
+        <circle class="led" id="led6" cx="550" cy="50" r="40" stroke="black" stroke-width="1" fill="white"/>
+        <circle class="led" id="led7" cx="650" cy="50" r="40" stroke="black" stroke-width="1" fill="white"/>
+        <circle class="led" id="led8" cx="750" cy="50" r="40" stroke="black" stroke-width="1" fill="white"/>
+
+        <circle class="led" id="led9" cx="50" cy="150" r="40" stroke="black" stroke-width="1" fill="white"/>
+        <circle class="led" id="led10"  cx="150" cy="150" r="40" stroke="black" stroke-width="1" fill="white"/>
+        <circle class="led" id="led11"  cx="250" cy="150" r="40" stroke="black" stroke-width="1" fill="white"/>
+        <circle class="led" id="led12"  cx="350" cy="150" r="40" stroke="black" stroke-width="1" fill="white"/>
+        <circle class="led" id="led13"  cx="450" cy="150" r="40" stroke="black" stroke-width="1" fill="white"/>
+        <circle class="led" id="led14"  cx="550" cy="150" r="40" stroke="black" stroke-width="1" fill="white"/>
+        <circle class="led" id="led15"  cx="650" cy="150" r="40" stroke="black" stroke-width="1" fill="white"/>
+        <circle class="led" id="led16"  cx="750" cy="150" r="40" stroke="black" stroke-width="1" fill="white"/>
+
+        <circle class="led" id="led17"  cx="50" cy="250" r="40" stroke="black" stroke-width="1" fill="white"/>
+        <circle class="led" id="led18"  cx="150" cy="250" r="40" stroke="black" stroke-width="1" fill="white"/>
+        <circle class="led" id="led19"  cx="250" cy="250" r="40" stroke="black" stroke-width="1" fill="white"/>
+        <circle class="led" id="led20"  cx="350" cy="250" r="40" stroke="black" stroke-width="1" fill="white"/>
+        <circle class="led" id="led21"  cx="450" cy="250" r="40" stroke="black" stroke-width="1" fill="white"/>
+        <circle class="led" id="led22"  cx="550" cy="250" r="40" stroke="black" stroke-width="1" fill="white"/>
+        <circle class="led" id="led23"  cx="650" cy="250" r="40" stroke="black" stroke-width="1" fill="white"/>
+        <circle class="led" id="led24"  cx="750" cy="250" r="40" stroke="black" stroke-width="1" fill="white"/>
+
+        <circle class="led" id="led25"  cx="50" cy="350" r="40" stroke="black" stroke-width="1" fill="white"/>
+        <circle class="led" id="led26"  cx="150" cy="350" r="40" stroke="black" stroke-width="1" fill="white"/>
+        <circle class="led" id="led27"  cx="250" cy="350" r="40" stroke="black" stroke-width="1" fill="white"/>
+        <circle class="led" id="led28"  cx="350" cy="350" r="40" stroke="black" stroke-width="1" fill="white"/>
+        <circle class="led" id="led29"  cx="450" cy="350" r="40" stroke="black" stroke-width="1" fill="white"/>
+        <circle class="led" id="led30"  cx="550" cy="350" r="40" stroke="black" stroke-width="1" fill="white"/>
+        <circle class="led" id="led31"  cx="650" cy="350" r="40" stroke="black" stroke-width="1" fill="white"/>
+        <circle class="led" id="led32"  cx="750" cy="350" r="40" stroke="black" stroke-width="1" fill="white"/>
+    </svg>
+    </br>
+    <div id="control-buttons">
+      <button id="start-reset" type="button" onclick="startButton()">Start</button>
+      <button id="chime" type="button" onclick="chime()">Chime</button>
+    </div>
+  </body>
 </html>
