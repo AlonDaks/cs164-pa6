@@ -61,7 +61,7 @@
       zigHigh(this.selection.filter(function(d, i) { return !(i % 2); }), this.params);
     }
 
-    // SquaresAnimation is an animation ____ 
+    // SquaresAnimation is an animation that lights up squares from a corner.
     var SquaresAnimation = Animation.make({color: "blue", delay: 600, duration: 400});
     SquaresAnimation.prototype.play = function(maxSize) {
       function filter(selection, count) {
