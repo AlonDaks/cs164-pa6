@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8">
     <title>PA6: D3 Visual Animation</title>
-    <script src="d3.min.js" charset="utf-8"></script>
+
     <style type="text/css">
       #control-buttons{
         width: 800px;
@@ -12,26 +12,76 @@
       }
     </style>
 
+    <script src="d3.min.js" charset="utf-8"></script>
+    <script src="animation.js" charset="utf-8"></script>
     <script>
+    /* We build user-specific animations here. */
+
+    // MarqueeAnimation is an animation that causes columns to alternate 
+    var MarqueeAnimation = Animation.make({color: "blue", delay: 800, duration: 400});
+    MarqueeAnimation.prototype.play = function() {
+      // This sequence is a off-to-on transition
+      function zigLow(selection, params) {
+        selection.attr("fill", "white")
+          .transition()
+          .delay(params.delay)
+          .attr("fill", params.color)
+          .duration(params.duration)
+          .delay(params.delay)
+          .each("end", function() {zigHigh(selection, params)});
+      }
+
+      // This sequence is an on-to-off transition
+      function zigHigh(selection, params) {
+        selection.attr("fill", params.color)
+          .transition()
+          .delay(params.delay)
+          .attr("fill", "white")
+          .duration(params.duration)
+          .delay(params.delay)
+          .each("end", function() {zigLow(selection, params)});
+      }
+
+      // Make half of the lights start on, half start off
+      zigLow(this.selection.filter(function(d, i) { return i % 2; }), this.params);
+      zigHigh(this.selection.filter(function(d, i) { return !(i % 2); }), this.params);
+    }
+
+    /* Driver code below */
     var leds;
     var marqueeAnim;
-    function startButton(){
-      button = document.getElementById("start-reset");
+
+    // Setup method called after body loads.
+    function setup() {
       leds = d3.selectAll(".led");
+      marqueeAnim = new MarqueeAnimation(leds);
+      chimeCount = 0;
+    }
+
+    function reset() {
+      marqueeAnim.stop();
+      marqueeAnim.resetParams();
+      chimeCount = 0;
+    }
+
+    // This button starts or stops the animation.
+    function startClicked(){
+      button = document.getElementById("start-reset");
       switch(button.innerHTML){
           case "Start":
           button.innerHTML = "Reset";
-          animationMain();
+          marqueeAnim.play();
           break;
         case "Reset":
           button.innerHTML = "Start";
-          stopAnimation(leds);
+          reset();
           break;
       }
     }
 
-    var chimeCount = 0;
-    function chime(){
+    // Reacting to user events. In our example, the animation either changes speeds or color
+    // depending on the number of times "Chime" has been clicked. 
+    function chimeCliked(){
       switch (chimeCount) {
         case 0: marqueeAnim.params.delay = 200; break;
         case 1: marqueeAnim.params.color = "green"; break;
@@ -41,16 +91,7 @@
       chimeCount = (chimeCount + 1) % 4;
     }
 
-    function animationMain() {
-      marqueeAnim = new MarqueeAnimation(leds);
-      marqueeAnim.play();
-    }
-
-    function stopAnimation(selection) {
-      marqueeAnim.stop();
-    }
-
-    function MarqueeAnimation(selection) {
+    /*function MarqueeAnimation(selection) {
       this.selection = selection;
       this.params = {color: "blue", delay: 800, duration: 400};
     }
@@ -88,9 +129,8 @@
       this.params = params;
     }
 
-    MarqueeAnimation.prototype.stop = function() {
-      this.selection.transition().duration(0).attr("fill", "white");
-    }
+    MarqueeAnimation.prototype.stop = function() {*/
+      
 
     /*function marqueeSequence(color, timeSteps){
       var LEDs = d3.selectAll(".led");
@@ -124,7 +164,7 @@
     }*/
   </script>
   </head>
-  <body>
+  <body onload="setup()">
     <svg width="800" height="400" boarder="1">
       <rect id="stage" x="0" y="0" width="800" height="400" stroke="black" stroke-width="1" fill-opacity="0.0"/>
         <circle class="led" id="led1" cx="50" cy="50" r="40" stroke="black" stroke-width="1" fill="white"/>
@@ -165,8 +205,8 @@
     </svg>
     </br>
     <div id="control-buttons">
-      <button id="start-reset" type="button" onclick="startButton()">Start</button>
-      <button id="chime" type="button" onclick="chime()">Chime</button>
+      <button id="start-reset" type="button" onclick="startClicked()">Start</button>
+      <button id="chime" type="button" onclick="chimeCliked()">Chime</button>
     </div>
   </body>
 </html>
