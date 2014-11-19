@@ -13,8 +13,11 @@
     </style>
 
     <script>
+    var leds;
+    var marqueeAnim;
     function startButton(){
       button = document.getElementById("start-reset");
+      leds = d3.selectAll(".led");
       switch(button.innerHTML){
           case "Start":
           button.innerHTML = "Reset";
@@ -22,46 +25,74 @@
           break;
         case "Reset":
           button.innerHTML = "Start";
-          stopAnimation();
+          stopAnimation(leds);
           break;
       }
     }
 
+    var chimeCount = 0;
     function chime(){
-      //A responsive event triger to send to the animation sequence
-      //An idea: every odd chime the colors of all the LED's become a shade brighter; every even chime the speed of the animation quickens
+      switch (chimeCount) {
+        case 0: marqueeAnim.params.delay = 200; break;
+        case 1: marqueeAnim.params.color = "green"; break;
+        case 2: marqueeAnim.params.delay = 800; break;
+        case 3: marqueeAnim.params.color = "blue"; break;
+      }
+      chimeCount = (chimeCount + 1) % 4;
     }
 
-    function animationMain(){
-      //Main deterministic animation driver
-      zigLow(d3.selectAll("#led1"), "blue");
-      zigHigh(d3.selectAll("#led2"), "blue")
+    function animationMain() {
+      marqueeAnim = new MarqueeAnimation(leds);
+      marqueeAnim.play();
     }
 
-    function stopAnimation() {
-      d3.selectAll(".led").transition().duration(0).attr("fill", "white");
+    function stopAnimation(selection) {
+      marqueeAnim.stop();
     }
 
-    /* Input: d3.selection */
-    function zigLow(selection, color, state) {
-      selection.attr("fill", "white")
-        .transition()
-        .delay(500)
-        .attr("fill", color)
-        .duration(1000)
-        .each("end",  function() {zigHigh(selection, color, state)});
+    function MarqueeAnimation(selection) {
+      this.selection = selection;
+      this.params = {color: "blue", delay: 800, duration: 400};
     }
 
-    function zigHigh(selection, color, state) {
-      selection.attr("fill", color)
-        .transition()
-        .delay(500)
-        .attr("fill", "white")
-        .duration(1000)
-        .each("end", function() {zigLow(selection, color, state)});
+    MarqueeAnimation.prototype.play = function() {
+      function zigLow(selection, params) {
+        selection.attr("fill", "white")
+          .transition()
+          .delay(params.delay)
+          .attr("fill", params.color)
+          .duration(params.duration)
+          .delay(params.delay)
+          .each("end", function() {zigHigh(selection, params)});
+      }
+
+      function zigHigh(selection, params) {
+        selection.attr("fill", params.color)
+          .transition()
+          .delay(params.delay)
+          .attr("fill", "white")
+          .duration(params.duration)
+          .delay(params.delay)
+          .each("end", function() {zigLow(selection, params)});
+      }
+
+      zigLow(this.selection.filter(function(d, i) { return i % 2; }), this.params);
+      zigHigh(this.selection.filter(function(d, i) { return !(i % 2); }), this.params);
     }
 
-    function marqueeSequence(color, timeSteps){
+    MarqueeAnimation.prototype.getParams = function(){
+      return this.params;
+    }
+
+    MarqueeAnimation.prototype.setParams = function(params) {
+      this.params = params;
+    }
+
+    MarqueeAnimation.prototype.stop = function() {
+      this.selection.transition().duration(0).attr("fill", "white");
+    }
+
+    /*function marqueeSequence(color, timeSteps){
       var LEDs = d3.selectAll(".led");
       var i = 0;                    
       function marqueeLoop() {         
@@ -90,7 +121,7 @@
          }, 500)
       }
       marqueeLoop(); 
-    }
+    }*/
   </script>
   </head>
   <body>
