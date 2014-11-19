@@ -53,7 +53,8 @@
       // This sequence is a off-to-on transition
       var INITIAL_SELECT = this.selection;
       function fillOne(selection, params) {
-          selection.attr("fill", "white")
+          INITIAL_SELECT.attr("fill", "white");
+          selection
           .transition()
           .delay(params.delay)
           .attr("fill", params.color)
@@ -64,7 +65,7 @@
 
       // This sequence is an on-to-off transition
       function fillFour(selection, params) {
-        selection.attr("fill", "white")
+        selection
           .transition()
           .delay(params.delay)
           .attr("fill", params.color)
@@ -74,7 +75,7 @@
       }
 
       function fillNine(selection, params) {
-        selection.attr("fill", "white")
+        selection
           .transition()
           .delay(params.delay)
           .attr("fill", params.color)
@@ -84,7 +85,7 @@
       }
 
       function fillSixteen(selection, params) {
-        selection.attr("fill", "white")
+        selection
           .transition()
           .delay(params.delay)
           .attr("fill", params.color)
@@ -101,15 +102,16 @@
     var leds;
     var marqueeAnim;
     var squaresAnimLeft;
+    var squaresAnimRight;
 
     // Setup method called after body loads.
     function setup() {
       leds = d3.selectAll(".led");
       // marqueeAnim = new MarqueeAnimation(leds);
       leftLEDs = leds.filter(function(d, i){ return (i >= 0 && i <= 3) || (i >= 8 && i <= 11) || (i >= 16 && i <= 19) || (i >= 24 && i <= 27)})
-      console.log(leds)
-      console.log(leftLEDs);
+      rightLEDs = leds.filter(function(d, i){ return (i >= 4 && i <= 7) || (i >= 12 && i <= 15) || (i >= 20 && i <= 23) || (i >= 28 && i <= 31)})
       squaresAnimLeft = new SquaresAnimation(leftLEDs);
+      squaresAnimRight = new SquaresAnimation(rightLEDs);
       chimeCount = 0;
     }
 
@@ -128,6 +130,7 @@
           case "Start":
           button.innerHTML = "Reset";
           squaresAnimLeft.play();
+          squaresAnimRight.play();
           // marqueeAnim.play();
           break;
         case "Reset":
