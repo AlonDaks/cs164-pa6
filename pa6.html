@@ -167,14 +167,15 @@
       squaresAnimRight.stop();
     }
 
-    // Reacting to user events. In our example, the animation either changes speeds or color
-    // depending on the number of times "Chime" has been clicked. 
+    // In our example, the Squares animation for the left half either changes speeds or color
+    // depending on the number of times "Chime" has been clicked. The Squares animation for the
+    // right half is unaffected.
     function chimeCliked() {
       switch (chimeCount) {
-        case 0: marqueeAnim.params.delay = 200; break;
-        case 1: marqueeAnim.params.color = "green"; break;
-        case 2: marqueeAnim.params.delay = 800; break;
-        case 3: marqueeAnim.params.color = "blue"; break;
+        case 0: squaresAnimLeft.params.delay = 200; break;
+        case 1: squaresAnimLeft.params.color = "green"; break;
+        case 2: squaresAnimLeft.params.delay = 600; break;
+        case 3: squaresAnimLeft.params.color = "blue"; break;
       }
       chimeCount = (chimeCount + 1) % 4;
     }
@@ -223,7 +224,7 @@
     <div id="control-buttons">
       <button id="start-marquee" type="button" onclick="marqueeClicked()">Start Marquee</button>
       <button id="start-squares" type="button" onclick="squaresClicked()">Start Squares</button>
-      <button id="chime" type="button" onclick="chimeCliked()">Chime</button>
+      <button id="chime" type="button" onclick="chimeCliked()">Toggle Left Squares</button>
       <button id="reset" type="button" onclick="reset()">Reset</button>
     </div>
   </body>
